@@ -1,41 +1,53 @@
-// server.js
+import express from 'express'
+import dotenv from 'dotenv'
+import { connectDb } from './services/database/connection'
+import swaggerUi from 'swagger-ui-express'
+import swaggerJsDoc from 'swagger-jsdoc'
+import { SwaggerOptions } from './documentation/swagger'
+import Router from './router'
+import cors from 'cors'
 
-require('dotenv').config()
-const { createServer } = require('http')
-const { parse } = require('url')
-const router = require('./router')
-const express = require('express')
-const connectToDatabase = require('./service/dbconnect')
-const next = require('next')
-const {urlencoded, json} = require('body-parser')
-const dev = process.env.NODE_ENV !== 'production'
+dotenv.config()
+const app = express()
+const port = 8000
+// connect to db
+connectDb()
+app.use(cors('*'))
+app.use(express.json())
+app.use(express.urlencoded({
+  extended: true
+}))
 
-const nextApp = next({ dev : dev})
-const handle = nextApp.getRequestHandler()
+Router(app)
 
-nextApp.prepare().then(async () => {
-    const app = express()
-    exports.app = app
-    app.use(urlencoded({ extended: true }))
-    app.use(json())
+// create doc
+const specs = swaggerJsDoc(SwaggerOptions)
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(specs)
+)
 
-    router(app)
-    app.use(json());
-    app.post('/test', function(req, res) {
-      res.send('hello wodsqdqrld');
-    });
-    // All pages handle by nextJS
-    app.get('*', (req, res, next) => {
-        return handle(req, res, next)
-    })
-
-    await connectToDatabase()
-    console.log(connectToDatabase)
-
-    app.listen(3000, (err) => {
-        console.log('tset')
-        if (err) throw err
-        console.log('> Ready on http://localhost:3000')
-    })
+/**
+ * @swagger
+ * /helloWorld:
+ *  get:
+ *    summary: hello world
+ *    description: exemple route
+ *    parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: Numeric ID of the user to retrieve.
+ *         schema:
+ *           type: integer
+ *    responses:
+ *      200:
+ */
+app.get('/', (req, res) => {
+  res.send('Hello World')
 })
 
+app.listen(port, () => {
+  console.log(`Dreamverse server listening at http://localhost:${8000}`)
+})

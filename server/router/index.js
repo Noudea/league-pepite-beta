@@ -1,10 +1,7 @@
-
-
-const authRoutes = require('./api/auth/index.js')
-
+import apiRoutes from './api'
 
 const Router = (app) => {
-  app.use(`${process.env.BASE_API_URL}/auth`, authRoutes)
+  app.use('/api', apiRoutes)
 }
 
-module.exports = Router
+export default Router

@@ -1,47 +1,39 @@
-var express = require('express');
-const User = require('../../../models/user.js');
+import express from 'express'
+import { createUser } from '../../../services/database/user'
 
 const router = express.Router()
-router.get('/test', async (req, res) => {
-    return (res.status(200).json({id:1,string:'blabla'})
-    )
-})
 
-router.post('/register', async (req, res) => {
-
+/**
+ * route to get all users, only admin can use this route
+ */
+router.post('/register', async (req, res, next) => {
   try {
     console.log(req.body)
-    const createdUser = await User.create(req.body)
-    console.log(createdUser)
-    if(createdUser) {
-      return res.redirect('/')
+    const createdUser = await createUser(req.body)
+    if (createdUser) {
+      return res.status(200).json({
+        success: {
+          redirect: '/'
+        }
+      })
+    } else {
+      // code 200 for implicit handling of duplicates
+      return res.status(200).json({
+        error: {
+          name: 'TODO',
+          description: 'TODO'
+        }
+      })
     }
   } catch (error) {
     console.log(error)
+    return res.status(500).json({
+      error: {
+        name: 'TODO',
+        description: 'TODO'
+      }
+    })
   }
 })
 
-
-
-router.post('/login', async (req, res) => {
-  try {
-    console.log(req.body)
-    
-  } catch (error) {
-    
-  }
-})
-
-router.get('/getdata', async (req, res) => {
-  try {
-    console.log("getdata ")
-    const users = await User.find({})
-    console.log('userfind',users)
-    res.status(200).json({success: true, data: users})
-  } catch (error) {
-    console.log(error)
-  }
-})
-
-
-module.exports = router
+export default router

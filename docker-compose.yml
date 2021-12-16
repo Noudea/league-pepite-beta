@@ -1,0 +1,67 @@
+version: "3.7"
+services:
+  pepitechat-server:
+    container_name: pepitechat-server
+    image: bitnami/node
+    command: sh -c 'npm install && npm run dev'
+    working_dir: /pepitechat-server
+    ports: 
+      - 8000:8000
+    volumes:
+      - ./server:/pepitechat-server
+    depends_on:
+      - mongodb
+    networks:
+      - pepitechat-network
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    env_file:
+      - ./server/development.env
+    
+  mongodb:
+    container_name: pepitechat-mongodb
+    image : bitnami/mongodb:latest
+    ports:
+      - 27016:27017
+    environment:
+      - MONGODB_ROOT_USER=admin
+      - MONGODB_ROOT_PASSWORD=password
+      - MONGODB_USERNAME=pepitechat
+      - MONGODB_PASSWORD=password
+      - MONGODB_DATABASE=pepitechat
+    volumes:
+      - pepitechat-mongodb-data:/bitnami/mongodb
+    networks:
+      - pepitechat-network
+
+  pepitechat-front:
+    container_name: pepitechat-front
+    image: bitnami/node
+    working_dir: /pepitechat-front
+    command: sh -c 'npm install && npm run dev'
+    ports: 
+      - 3000:3000
+    volumes:
+      - ./vercel:/pepitechat-front
+    networks:
+      - pepitechat-network
+
+  apache:
+    container_name: pepitechat-apache
+    image: bitnami/apache:latest
+    ports:
+      - 80:8080
+      - 443:8443
+    volumes:
+    - ./apache/vhosts:/vhosts:ro
+    depends_on:
+      - mongodb
+      - pepitechat-server
+      - pepitechat-front
+    networks:
+      - pepitechat-network
+
+volumes:
+  pepitechat-mongodb-data:
+networks:
+  pepitechat-network:
