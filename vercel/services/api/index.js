@@ -10,8 +10,12 @@ const apiCall = async (method, url, body) => {
     data: body
   }
 
-  const response = await axios(config)
-  return response.data
+  try {
+    const response = await axios(config)
+    return response.data
+  } catch (error) {
+    return error.response.data
+  }
 }
 
 export default apiCall

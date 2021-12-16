@@ -1,12 +1,23 @@
 import UserModel from '../../../models/User'
 import { hashPassword } from '../../password'
 
+/**
+ * get user with a filter in the db
+ */
 const getUser = async (filter) => {
-  return await UserModel.find({ filter: filter })
+  const userExist = await UserModel.exists(filter)
+  if (!userExist) {
+    return false
+  }
+  const user = await UserModel.find(filter)
+  return user[0]
 }
+
+/**
+ * function to create user in the database
+ */
 const createUser = async (user) => {
-  const userExist = await UserModel.exists()
-  console.log('userExist', userExist)
+  const userExist = await UserModel.exists({ email: user.email })
   if (userExist) {
     return false
   }
