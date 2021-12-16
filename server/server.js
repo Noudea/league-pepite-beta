@@ -49,5 +49,5 @@ app.get('/', (req, res) => {
 })
 
 app.listen(port, () => {
-  console.log(`Dreamverse server listening at http://localhost:${8000}`)
+  console.log(`pepitechat server listening at http://localhost:${8000}`)
 })

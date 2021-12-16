@@ -16,7 +16,7 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
     env_file:
-      - ./server/development.env
+      - ./server/.env
     
   mongodb:
     container_name: pepitechat-mongodb
